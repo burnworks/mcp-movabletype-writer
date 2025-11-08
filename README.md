@@ -196,7 +196,7 @@ MT_REMEMBER=1
 - `MT_API_URL` は `mt-data-api.cgi` の URL を指定します。
 - `MT_USERNAME` は Movable Type にログインするユーザー名を指定します。
 - `MT_PASSWORD` は Movable Type にログインするユーザーのパスワードですが、ログインパスワードではなく、ユーザー情報の編集画面から取得できる「Webサービスパスワード」を指定します。
-- `MT_API_VERSION` には利用中の Movable Type Data API のバージョン番号（例: `5`, `7` など）を設定してください。
+- `MT_API_VERSION` には利用中の Movable Type Data API のバージョン番号（例: `5`, `6` など）を設定してください。
 - `MT_CLIENT_ID` はアプリケーション固有の任意のキーを指定します。例えば `mcp-movabletype-writer` のように識別しやすい、アルファベット、(_)アンダースコア、(-)ダッシュ、で構成された任意の文字列を指定できます。
 - `MT_REMEMBER` は認証時の `remember` パラメータ（`0` or `1`）です。デフォルト値 `1` のままの場合、サインアウトするまでセッションを維持できます。明示的に短命なトークンを使いたいときのみ `0` にしてください。
 
