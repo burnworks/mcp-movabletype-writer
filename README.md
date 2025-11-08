@@ -205,7 +205,7 @@ npm install
 npm run dev
 ```
 
-その後、別ターミナルで `npx @modelcontextprotocol/inspector` などすると、動作確認しながら開発を進めることができて便利です。
+その後、別ターミナルで `npx @modelcontextprotocol/inspector` （[modelcontextprotocol/inspector](https://github.com/modelcontextprotocol/inspector)）などすると、動作確認しながら開発を進めることができて便利です。
 
 ## トラブルシューティング
 
