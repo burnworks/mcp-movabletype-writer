@@ -27,7 +27,7 @@
     "url": "https://github.com/burnworks/mcp-movabletype-writer"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.21.0",
+    "@modelcontextprotocol/sdk": "^1.21.1",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3"
   },
