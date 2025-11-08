@@ -1,60 +1,72 @@
 # mcp-movabletype-writer
 
-Movable Type 用の MCP サーバ。
+[日本語](./README.ja.md)
 
-Claude Desktop など、MCP に対応した AI ツールと Movable Type を連携させ、AI 生成記事の下書き作成・編集を行います。
+MCP server for Movable Type.
 
-AI に相談しながらブログやコラムの記事案を作成し、それをそのまま Movable Type の下書き記事として保存したり、保存した下書き記事を AI に修正してもらったりすることができます。
+It lets MCP-compatible AI tools such as Claude Desktop work with Movable Type so that AI-generated drafts can be created and edited directly inside MT.
 
-## 特徴
+You can brainstorm articles with an AI assistant, store the result as a Movable Type draft, and iterate on the same draft by asking the AI to revise sections.
 
-- 🤖 **AI連携**: Claude Desktop などから 直接 Movable Type に下書き記事を投稿
-- 💾 **セッション管理**: 最後に編集した下書き記事を記憶し、リライト依頼など連続編集をスムーズに
-- ✏️ **リライト対応**: 「ここを直して」の指示で下書き記事を更新可能
-- 📝 **下書き管理**: 下書き一覧の取得、個別下書き記事の詳細確認
+## Features
 
-安全のため、以下のことはできないようになっています。つまり、記事の「下書き」を AI と共同で作ることに特化した MCP サーバです。
+- 🤖 **AI integration**: Post drafts to Movable Type straight from Claude Desktop or any MCP client.
+- 💾 **Session tracking**: Remembers the last edited draft so multi-step rewrites stay in context.
+- ✏️ **Rewrite ready**: “Fix this paragraph” style prompts update the current draft in place.
+- 📝 **Draft management**: List drafts and inspect individual draft details.
 
-- 記事の削除（下書き記事 / 公開記事問わず、記事の削除は不可）
-- 下書き記事を公開すること
-- 公開済みの記事を編集したり下書きにしたりすること
+For safety this server intentionally focuses on collaborative draft creation. It does **not** allow:
 
-## 前提条件
+- Deleting drafts or published entries.
+- Publishing drafts.
+- Editing already published entries or reverting them to drafts.
 
-- Node.js 22.7.5 以上（LTS 推奨）
-- Movable Type 7 r.53xx 以上（Data API 有効化済み）
-  - Data API v4 以降で動作確認
+## Requirements
 
-## インストール
+- Node.js 22.7.5 or newer (current LTS 24.x is recommended).
+- Movable Type 7 r.53xx or newer with Data API enabled.
+  - Tested with Data API v4 and later.
+
+## Installation
+
+> If you intend to run it via `npx`, you can skip this section and jump to “Using with npx”.
 
 ```bash
+git clone https://github.com/burnworks/mcp-movabletype-writer.git
 cd mcp-movabletype-writer
 npm install
 npm run build
 ```
 
-## 設定
+or simply install from npm:
 
-### 1. Movable Type 側の準備
+```bash
+npm install mcp-movabletype-writer
+```
 
-1. システム管理画面、および編集対象とするウェブサイトやブログの設定画面で「ツール」→「Webサービス」→「Data API」を有効化
-2. ログインに使用するユーザーの設定画面から「ユーザー名」と「Webサービスパスワード」を取得（通常の管理画面ログインに使用するパスワードではなく「Webサービスパスワード」ですので間違えないようにしてください）
-3. API エンドポイントの URL を確認（例: `https://example.com/your_mt_path/mt-data-api.cgi`）
+## Configuration
 
-### 2. Claude Desktop の設定例
+### 1. Prepare Movable Type
 
-Claude Desktop の設定ファイル (`claude_desktop_config.json`) を開きます。
+1. In both the system dashboard and the target website/blog dashboard enable **Tools → Web Services → Data API**.
+2. Open the MT user profile that will run the API calls and note the **username** and **Web Services Password** (this is *different* from the regular CMS login password).
+3. Confirm the Data API endpoint URL (e.g. `https://example.com/your_mt_path/mt-data-api.cgi`).
 
-#### 設定ファイルの場所
+### 2. Configure Claude Desktop
+
+Open `claude_desktop_config.json`.
+
+#### File locations
 
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
-※ Claude Desktop の「設定」→「管理者」からも設定ファイルを開くことができます。
+You can also open the file from **Claude Desktop → Settings → Administrator**.
 
-Claude Desktop の設定ファイル (`claude_desktop_config.json`) も以下のように追記します。`args` には、`dist/index.js` までのフルパスを記述します。
+#### Example configuration for a local build
 
-Windows 環境でファイルパスに `\` を含む場合は、`mcp-movabletype-writer\\dist\\index.js` のように `\` でエスケープしてください。
+Append the following block. `args` must contain the full path to `dist/index.js`.  
+On Windows, escape backslashes such as `mcp-movabletype-writer\\dist\\index.js`.
 
 ```json
 {
@@ -77,18 +89,45 @@ Windows 環境でファイルパスに `\` を含む場合は、`mcp-movabletype
 }
 ```
 
-- `MT_API_URL` は `mt-data-api.cgi` の URL を指定します。
-- `MT_USERNAME` は Movable Type にログインするユーザー名を指定します。
-- `MT_PASSWORD` は Movable Type にログインするユーザーのパスワードですが、ログインパスワードではなく、ユーザー情報の編集画面から取得できる「Webサービスパスワード」を指定します。
-- `MT_API_VERSION` には利用中の Movable Type Data API のバージョン番号（例: `5`, `6` など）を設定してください。
-- `MT_CLIENT_ID` はアプリケーション固有の任意のキーを指定します。例えば `mcp-movabletype-writer` のように識別しやすい、アルファベット、(_)アンダースコア、(-)ダッシュ、で構成された任意の文字列を指定できます。
-- `MT_REMEMBER` は認証時の `remember` パラメータ（`0` or `1`）です。デフォルト値 `1` のままの場合、サインアウトするまでセッションを維持できます。明示的に短命なトークンを使いたいときのみ `0` にしてください。
+- `MT_API_URL`: URL to `mt-data-api.cgi`.
+- `MT_USERNAME`: Movable Type username.
+- `MT_PASSWORD`: *Web Services Password* from the MT user profile (do **not** use the normal login password).
+- `MT_API_VERSION`: Data API version in use, e.g. `5`, `6`, `7`.
+- `MT_CLIENT_ID`: Any identifier composed of letters, `_`, or `-` (e.g. `mcp-movabletype-writer`).
+- `MT_REMEMBER`: `remember` flag (`0`/`1`). Leave it at `1` to keep sessions active until sign-out. Use `0` only if you need very short-lived tokens.
 
-`MT_API_VERSION` を変更することで、将来的に Movable Type 側で Data API のバージョンを切り替えた際も Claude 側の設定のみで追随できます。`MT_CLIENT_ID` は Data API への認証時に必須なので、未設定の場合はサーバー起動時にエラーになります。`MT_REMEMBER` を `1` のままにしておくと Claude からの操作中にトークンが失効しにくくなります。
+Changing `MT_API_VERSION` lets you point the same binary at MT Data API v4/v5/v6/v7 without rebuilding. `MT_CLIENT_ID` must be set; the server exits if it’s missing. Keeping `MT_REMEMBER=1` reduces the chance of token expiry mid-session.
 
-## 使い方
+#### Using with npx
 
-### 基本的な使用例
+You can run the published package with `npx`. In that case point `command` to `npx`:
+
+```json
+{
+  "mcpServers": {
+    "movabletype-writer": {
+      "command": "npx",
+      "args": [
+        "mcp-movabletype-writer"
+      ],
+      "env": {
+        "MT_API_URL": "https://example.com/your_mt_path/mt-data-api.cgi",
+        "MT_USERNAME": "your_username",
+        "MT_PASSWORD": "your_webservice_password",
+        "MT_API_VERSION": "5",
+        "MT_CLIENT_ID": "mcp-movabletype-writer",
+        "MT_REMEMBER": "1"
+      }
+    }
+  }
+}
+```
+
+Use `mcp-movabletype-writer@1.0.0` if you prefer to pin a specific version. The `env` settings are identical to a local build.
+
+## Usage
+
+### Basic flow
 
 ```
 User: ブログID 1に「MTプラグイン開発入門」という記事の下書きを作成して
@@ -107,58 +146,57 @@ Claude: update_last_draftを実行...
 → 記事を更新しました（ID: 123）
 ```
 
-### ヒント
+### Tips
 
-- Movable Type 上に複数のブログがある場合は投稿するブログのIDを指定しましょう。AI にブログの一覧を出してと指示すればリスト化してくれますので、そこから選択すると早いです。
-- 特に指定しないと Claude は記事を HTML 形式で作成するかもしれません。Movable Type にはマークダウン形式で投稿したい場合は、「マークダウン形式で保存して」などと指示するとよいでしょう。
-- 1つの会話の流れの中では直前に編集した記事を覚えておいてくれるようにしてありますので、通常は特に記事IDをわざわざ指定しなくても、続けて修正、加筆などを指示するだけでスムーズに進むと思います。
-- 別の下書き記事を編集させたい場合は、まず下書き記事の一覧を表示するように指示し、一覧に表示された記事IDを指定して、修正などを指示すればよいでしょう。
+- If you manage multiple blogs, ask Claude to run `list_sites` and choose the correct `blog_id` from the result.
+- Claude may default to HTML output; if you prefer Markdown drafts, explicitly request “save in Markdown”.
+- Within a single conversation the server remembers the latest draft, so follow-up edits usually don’t require specifying `entry_id`.
+- To edit another draft, ask for `list_recent_drafts`, pick an ID from the list, and provide it to `update_draft`.
 
-詳しくは以下のツールの説明をご確認ください。
+See the tool descriptions below for details.
 
-### 利用可能なツール
+### Available tools
 
 #### `list_sites`
-利用可能なブログ（サイト）の一覧を取得
+Returns available blogs/sites.
 
 ```
 Claude: list_sitesで確認...
-→ ID: 1, Name: "技術ブログ"
-→ ID: 2, Name: "お知らせサイト"
+→ ID: 1, Name: "Tech Blog"
+→ ID: 2, Name: "News"
 ```
 
 #### `create_draft`
-新しい下書き記事を作成
+Create a new draft.
 
-- 必須: `blog_id`, `title`, `body`
-- オプション: `tags`, `categories`
+- Required: `blog_id`, `title`, `body`
+- Optional: `tags`, `categories`
 
 #### `update_last_draft`
-最後に作成/編集した記事を更新
+Update the most recently created/edited draft.
 
-- すべてのパラメータがオプション
-- 指定した項目のみ更新される
+- All parameters are optional; only supplied fields are changed.
 
 #### `update_draft`
-ID指定で記事を更新
+Update a draft by explicit ID.
 
-- 必須: `blog_id`, `entry_id`
-- オプション: `title`, `body`, `tags`, `categories`
+- Required: `blog_id`, `entry_id`
+- Optional: `title`, `body`, `tags`, `categories`
 
 #### `get_draft`
-記事の詳細を取得
+Fetch draft details.
 
-- 必須: `blog_id`, `entry_id`
+- Required: `blog_id`, `entry_id`
 
 #### `list_recent_drafts`
-最近の下書き一覧を取得
+List recent drafts.
 
-- 必須: `blog_id`
-- オプション: `limit` (デフォルト: 10)
+- Required: `blog_id`
+- Optional: `limit` (default 10)
 
-## セッション管理
+## Session storage
 
-最後に作成/編集した記事の情報は `~/.mcp-mt/session.json` に保存されます。
+Information about the most recent draft is stored at `~/.mcp-mt/session.json`:
 
 ```json
 {
@@ -168,17 +206,13 @@ ID指定で記事を更新
 }
 ```
 
-この情報により、`update_last_draft` で記事IDを指定せずに最後に編集していた記事を編集対象にできます。
+This lets `update_last_draft` run without specifying `entry_id`.
 
-## 開発者向け
+## For developers
 
-以下は開発者向け情報です。
+### Using environment variables with `npm run dev`
 
-### テスト実行用 環境変数の設定
-
-`npm run build` せず、`npm run dev` で MCP サーバを立ち上げたい場合は環境変数が使用できます。
-
-`.env.example` を `.env` にコピーして編集します。
+If you want to iterate with `npm run dev` (tsx) instead of `npm run build`, copy the example env file:
 
 ```bash
 cp .env.example .env
@@ -193,42 +227,37 @@ MT_CLIENT_ID=your_client_id
 MT_REMEMBER=1
 ```
 
-- `MT_API_URL` は `mt-data-api.cgi` の URL を指定します。
-- `MT_USERNAME` は Movable Type にログインするユーザー名を指定します。
-- `MT_PASSWORD` は Movable Type にログインするユーザーのパスワードですが、ログインパスワードではなく、ユーザー情報の編集画面から取得できる「Webサービスパスワード」を指定します。
-- `MT_API_VERSION` には利用中の Movable Type Data API のバージョン番号（例: `5`, `6` など）を設定してください。
-- `MT_CLIENT_ID` はアプリケーション固有の任意のキーを指定します。例えば `mcp-movabletype-writer` のように識別しやすい、アルファベット、(_)アンダースコア、(-)ダッシュ、で構成された任意の文字列を指定できます。
-- `MT_REMEMBER` は認証時の `remember` パラメータ（`0` or `1`）です。デフォルト値 `1` のままの場合、サインアウトするまでセッションを維持できます。明示的に短命なトークンを使いたいときのみ `0` にしてください。
+Then run:
 
 ```bash
 npm install
 npm run dev
 ```
 
-その後、別ターミナルで `npx @modelcontextprotocol/inspector` （[modelcontextprotocol/inspector](https://github.com/modelcontextprotocol/inspector)）などすると、動作確認しながら開発を進めることができて便利です。
+For debugging, tools like [@modelcontextprotocol/inspector](https://github.com/modelcontextprotocol/inspector) make it easy to connect and exercise the MCP server while you develop.
 
-## トラブルシューティング
+## Troubleshooting
 
-### 認証エラー
+### Authentication errors
 
-- `MT_USERNAME`、`MT_PASSWORD`（Webサービスパスワード）が正しいか、`MT_CLIENT_ID` が正しくセットされているか確認
-- Movable Type の Data API が有効化されているか確認（管理画面設定、および `mt-data-api.cgi` のパーミッション確認）
+- Ensure `MT_USERNAME`, `MT_PASSWORD` (Web Services Password), and `MT_CLIENT_ID` are correct.
+- Verify the Data API is enabled and that `mt-data-api.cgi` is accessible.
 
-### 記事が見つからない
+### Cannot find drafts
 
-- `list_sites` で `blog_id` を確認
-- `list_recent_drafts` で記事一覧を確認
+- Use `list_sites` to confirm the correct `blog_id`.
+- Run `list_recent_drafts` to see available drafts and their IDs.
 
-### セッションがリセットされる
+### Session keeps resetting
 
-- `~/.mcp-mt/session.json` が削除されていないか確認
-- Claude Desktop を再起動すると新しいセッションが開始されます
+- Check that `~/.mcp-mt/session.json` still exists.
+- Restarting Claude Desktop starts a new MCP session (and thus a blank `session.json`).
 
-## ライセンス
+## License
 
 MIT
 
-## 参考
+## References
 
 - [Movable Type Data API Document](https://www.movabletype.jp/developers/data-api/)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
