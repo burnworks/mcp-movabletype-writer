@@ -10,6 +10,7 @@ yarn.lock
 # Environment variables
 .env
 .env.local
+internal-config.json
 
 # Session data
 .mcp-mt/

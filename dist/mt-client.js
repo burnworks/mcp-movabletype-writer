@@ -1,20 +1,26 @@
 import axios from 'axios';
+const DEFAULT_TIMEOUT_MS = 30000;
 export class MTClient {
     client;
     accessToken = null;
     config;
     versionPath;
-    constructor(config) {
+    requestTimeoutMs;
+    constructor(config, options = {}) {
         this.config = config;
         const normalizedBaseUrl = config.apiUrl.replace(/\/+$/, '');
         const normalizedVersion = config.apiVersion.replace(/^v/i, '');
+        const configuredTimeout = typeof options.requestTimeoutMs === 'number' && options.requestTimeoutMs > 0
+            ? options.requestTimeoutMs
+            : DEFAULT_TIMEOUT_MS;
         if (!normalizedVersion) {
             throw new Error('MT API version is required (e.g. "5" or "v5").');
         }
         this.versionPath = `v${normalizedVersion}`;
+        this.requestTimeoutMs = configuredTimeout;
         this.client = axios.create({
             baseURL: `${normalizedBaseUrl}/${this.versionPath}`,
-            timeout: 30000,
+            timeout: this.requestTimeoutMs,
             headers: {
                 'X-MT-Requested-By': this.config.clientId,
                 Accept: 'application/json'

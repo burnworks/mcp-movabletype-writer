@@ -8,6 +8,7 @@ import {
   Tool
 } from '@modelcontextprotocol/sdk/types.js';
 import dotenv from 'dotenv';
+import { loadInternalConfig } from './internal-config.js';
 import { MTClient, MTConfig } from './mt-client.js';
 import { SessionManager } from './session.js';
 
@@ -32,7 +33,11 @@ if (!config.apiUrl || !config.username || !config.password || !config.apiVersion
 }
 
 // クライアントとセッションマネージャーの初期化
-const mtClient = new MTClient(config);
+const internalConfig = loadInternalConfig();
+
+const mtClient = new MTClient(config, {
+  requestTimeoutMs: internalConfig.requestTimeoutMs
+});
 const sessionManager = new SessionManager();
 
 // MCPサーバーの作成

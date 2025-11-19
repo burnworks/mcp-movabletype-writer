@@ -47,12 +47,16 @@ export interface UpdateEntryParams {
     }[];
     status?: 'Draft' | 'Publish' | 'Review' | 'Future';
 }
+export interface MTClientOptions {
+    requestTimeoutMs?: number;
+}
 export declare class MTClient {
     private client;
     private accessToken;
     private config;
     private versionPath;
-    constructor(config: MTConfig);
+    private requestTimeoutMs;
+    constructor(config: MTConfig, options?: MTClientOptions);
     authenticate(): Promise<void>;
     createEntry(params: CreateEntryParams): Promise<MTEntry>;
     updateEntry(blogId: number, entryId: number, params: UpdateEntryParams): Promise<MTEntry>;

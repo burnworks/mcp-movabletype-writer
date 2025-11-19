@@ -9,6 +9,8 @@ export interface MTConfig {
   rememberSession: boolean;
 }
 
+const DEFAULT_TIMEOUT_MS = 30000;
+
 export interface MTEntry {
   id: number;
   title: string;
@@ -41,26 +43,36 @@ export interface UpdateEntryParams {
   status?: 'Draft' | 'Publish' | 'Review' | 'Future';
 }
 
+export interface MTClientOptions {
+  requestTimeoutMs?: number;
+}
+
 export class MTClient {
   private client: AxiosInstance;
   private accessToken: string | null = null;
   private config: MTConfig;
   private versionPath: string;
+  private requestTimeoutMs: number;
 
-  constructor(config: MTConfig) {
+  constructor(config: MTConfig, options: MTClientOptions = {}) {
     this.config = config;
     const normalizedBaseUrl = config.apiUrl.replace(/\/+$/, '');
     const normalizedVersion = config.apiVersion.replace(/^v/i, '');
+    const configuredTimeout =
+      typeof options.requestTimeoutMs === 'number' && options.requestTimeoutMs > 0
+        ? options.requestTimeoutMs
+        : DEFAULT_TIMEOUT_MS;
 
     if (!normalizedVersion) {
       throw new Error('MT API version is required (e.g. "5" or "v5").');
     }
 
     this.versionPath = `v${normalizedVersion}`;
+    this.requestTimeoutMs = configuredTimeout;
 
     this.client = axios.create({
       baseURL: `${normalizedBaseUrl}/${this.versionPath}`,
-      timeout: 30000,
+      timeout: this.requestTimeoutMs,
       headers: {
         'X-MT-Requested-By': this.config.clientId,
         Accept: 'application/json'

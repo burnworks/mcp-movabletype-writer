@@ -1,6 +1,6 @@
 {
   "name": "mcp-movabletype-writer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for Movable Type - AI-powered draft creation and editing",
   "type": "module",
   "main": "dist/index.js",
@@ -27,12 +27,12 @@
     "url": "https://github.com/burnworks/mcp-movabletype-writer"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.21.1",
+    "@modelcontextprotocol/sdk": "^1.22.0",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },

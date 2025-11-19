@@ -3,6 +3,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import dotenv from 'dotenv';
+import { loadInternalConfig } from './internal-config.js';
 import { MTClient } from './mt-client.js';
 import { SessionManager } from './session.js';
 // 環境変数の読み込み（dotenv 17 以降の実行時ログを抑制）
@@ -23,7 +24,10 @@ if (!config.apiUrl || !config.username || !config.password || !config.apiVersion
     process.exit(1);
 }
 // クライアントとセッションマネージャーの初期化
-const mtClient = new MTClient(config);
+const internalConfig = loadInternalConfig();
+const mtClient = new MTClient(config, {
+    requestTimeoutMs: internalConfig.requestTimeoutMs
+});
 const sessionManager = new SessionManager();
 // MCPサーバーの作成
 const server = new Server({

@@ -126,6 +126,14 @@ Windows 環境でファイルパスに `\` を含む場合は、`mcp-movabletype
 }
 ```
 
+### 上級者向け設定
+
+通常利用では不要な微調整用の設定は、プロジェクト直下に置く `internal-config.json` にまとめています。`internal-config.example.json` をコピーしてファイル名を `internal-config.json` に変更し、必要な値を書き換えてください。
+
+- `requestTimeoutMs`: Movable Type への HTTP リクエストのタイムアウト時間（ミリ秒）。初期値は `30000`。
+
+ファイルが存在しない場合や JSON の記述に誤りがある場合は自動的に組み込みの初期値へフォールバックするため、安心して試せます。
+
 ## 使い方
 
 ### 基本的な使用例

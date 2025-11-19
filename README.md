@@ -125,6 +125,14 @@ You can run the published package with `npx`. In that case point `command` to `n
 
 Use `mcp-movabletype-writer@1.0.0` if you prefer to pin a specific version. The `env` settings are identical to a local build.
 
+### Advanced settings (power users)
+
+Fine-tuning knobs that aren’t meant for day-to-day users live in `internal-config.json`. Copy `internal-config.example.json` to the project root (or wherever you run the server from), rename it to `internal-config.json`, and adjust the values.
+
+- `requestTimeoutMs`: Timeout (milliseconds) for Movable Type HTTP requests. Defaults to `30000`.
+
+If the file is missing or contains invalid JSON the server falls back to the built-in defaults, so it’s safe to experiment.
+
 ## Usage
 
 ### Basic flow

@@ -1,0 +1,4 @@
+{
+  "_comment": "Advanced settings for power users. Copy to internal-config.json to override defaults.",
+  "requestTimeoutMs": 30000
+}
